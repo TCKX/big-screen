@@ -1,0 +1,149 @@
+header.el-dialog__header {
+  border-bottom: 1px solid #032041;
+}
+.el-dialog__title {
+  color: #fff;
+}
+
+.el-dialog__footer {
+  border-top: 1px solid #032041;
+}
+
+.el-loading-text{
+  color: #fff !important;
+  font-size: 20px !important;
+  // font-weight: bold;
+}
+
+.el-dialog {
+  border-radius: 6px;
+  background-color: #05162f;
+  border: 1px solid #118cfe;
+}
+
+.el-pagination {
+  margin-top: 20px;
+}
+
+.el-pagination button.is-disabled,
+.el-pagination button:disabled {
+  background-color: #082344;
+  border: 1px solid #194755;
+  border-radius: 8px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.el-pagination button {
+  background-color: #082344;
+  border: 1px solid #194755;
+  border-radius: 8px;
+  margin-left: 10px;
+  margin-right: 10px;
+  color: #fff;
+}
+.el-pagination > .is-last {
+  background-color: #082344;
+  border: 1px solid #194755;
+  border-radius: 8px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.el-pager li {
+  background-color: #082344;
+  border: 1px solid #194755;
+  border-radius: 8px;
+  margin-left: 4px;
+  margin-right: 4px;
+  color: #fff;
+}
+.el-pager li.is-active {
+  background-color: #00c2ff;
+  color: #fff;
+  border-radius: 8px;
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
+.el-input__wrapper {
+  background-color: #05162f;
+  color: #fff;
+  border: 1px solid #024b93;
+  // width: 180px !important;
+  // height: 20px !important;
+}
+
+.el-select-dropdown__wrap {
+  background-color: #012e5a;
+  border: 1px solid #012e5a;
+}
+
+.el-select-dropdown__item {
+  color: #fff;
+}
+
+.el-select-dropdown__item.selected {
+  color: #fff;
+}
+.el-select-dropdown__item.hover,
+.el-select-dropdown__item:hover {
+  background-color: #05519a;
+  color: #fff;
+}
+
+.el-input__wrapper {
+  box-shadow: none;
+}
+.el-input__wrapper:hover {
+  box-shadow: none;
+  border: 1px solid #118cfe;
+}
+
+.el-form-item__label {
+  color: #fff;
+}
+
+.el-input__inner {
+  color: #fff;
+}
+
+.el-select .el-input__inner {
+  box-shadow: none;
+}
+
+.el-select .el-input__inner:hover {
+  // border: 1px solid #118cfe;
+  box-shadow: none;
+}
+
+.el-divider--horizontal {
+  border-top: 1px #012e5a solid;
+}
+
+// .el-input__wrapper {
+//   width: 200px !important;
+//   height: 26px !important;
+// }
+
+.el-popper.is-light {
+  background-color: #012e5a;
+  color: #fff;
+}
+
+
+.el-button.is-link{
+  color: #1370fb;
+  &:hover,&:focus,&:active{
+    color: #1370fb;
+    background-color: #1370fb;
+  }
+}  
+
+.el-menu--horizontal.el-menu{
+  border: none;
+}
+
+.el-popper.is-light{
+  border: 1px solid #024b93;
+}
