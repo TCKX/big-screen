@@ -7,9 +7,8 @@
       :before-close="close"
       :destroy-on-close="true"
       :close-on-click-modal="false"
-      v-loading="loading"
     >
-      <div class="content" style="overflow-y: auto" v-loading="loading">
+      <div class="content" style="overflow-y: auto">
         <el-form
           style="max-width: 100%; display: flex; flex-direction: column"
           ref="formRef"
@@ -419,23 +418,26 @@ export default {
           state.formData.add = [
             {
               value: "告警分数",
-              value1: res.query.slice(-6, -4)==' :'?'==':res.query.slice(-6, -4),
+              value1:
+                res.query.slice(-6, -4) == " :"
+                  ? "=="
+                  : res.query.slice(-6, -4),
               value2: res.query.slice(-3, -1),
             },
           ];
-        } else if(res.query.indexOf("type") == 1){
+        } else if (res.query.indexOf("type") == 1) {
           requestMethods.getFirstSelectFun();
           requestMethods.getSecondSelectFun("type");
           state.ifShow = false;
           state.formData.add = [
             {
               value: "告警类型",
-              value1: res.query.slice(-4, -3)==':'?"==":res.query.slice(-4, -3),
+              value1:
+                res.query.slice(-4, -3) == ":" ? "==" : res.query.slice(-4, -3),
               value2: state.typeTwoEnum[res.query.slice(-2, -1)],
             },
           ];
         }
-        
       },
 
       // 提交创建规则内容
@@ -447,13 +449,22 @@ export default {
           let newQueryItem: any = "";
           newQueryItem = state.formData.add.map((m, i) => {
             if (m.value == "告警类型") {
-              return ( "(" + "type" + " " + m.value1 + " " + state.reTypeTwoEnum[m.value2] + ")" );
+              return (
+                "(" +
+                "type" +
+                " " +
+                m.value1 +
+                " " +
+                state.reTypeTwoEnum[m.value2] +
+                ")"
+              );
             } else if (m.value == "告警分数") {
-              return "(" + "alert_score " + " " + m.value1 + " " + m.value2 + ")";
+              return (
+                "(" + "alert_score " + " " + m.value1 + " " + m.value2 + ")"
+              );
             }
             return "(" + m.value + " " + m.value1 + " " + m.value2 + ")";
           });
-
 
           // state.loading = true;
 
@@ -652,7 +663,23 @@ export default {
   background-color: #012e5a;
 }
 
-:deep(.el-loading-text){
+:deep(.el-loading-text) {
   color: #fff;
 }
+
+:deep(.el-input-number__decrease) {
+  border-right: 1px solid #024b93;
+}
+
+:deep(.el-input-number__increase) {
+  border-left: 1px solid #024b93;
+}
+
+:deep(.el-radio-button:first-child .el-radio-button__inner) {
+  border-left: 1px solid #024b93;
+}
+
+// :deep(.el-radio-button__original-radio:disabled+.el-radio-button__inner){
+//   background-color: gray;
+// }
 </style>

@@ -23,13 +23,15 @@ export default {
         const params2 = sessionStorage.getItem("token");
         const params3 = sessionStorage.getItem("uname");
         if (res.status == 0) {
-          return window.open( `${getManageUrl}/#/login?sid=${params1}&token=${params2}&username=${params3}`, "_self" );
+          // 此跳转路径只是为了携带参数
+          return window.open(`${res.socUrl}/#/login?sid=${params1}&token=${params2}&username=${params3}`,"_self");
+          // return window.open( `http://192.168.0.65:5000/#/login?sid=${params1}&token=${params2}&username=${params3}`,"_self" );
         } else {
           ElMessage({
-            showClose: true,
+            showClose: false,
             message: res.errormessage,
             type: "error",
-          }); 
+          });
           return router.push("home");
         }
       },

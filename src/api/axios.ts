@@ -166,6 +166,11 @@ const tipError = (
  * @returns
  */
 export const apiRequest = async (params: IHttpRequestParams) => {
+
+  // if(!sessionStorage.getItem('uname')){
+  //   return reidrect('/login');
+  // }
+
   if (isNull(params)) {
     return Promise.reject("请传入请求参数");
   }
@@ -221,6 +226,7 @@ export const apiRequest = async (params: IHttpRequestParams) => {
         return Promise.resolve({ fileName, fileBlob: rspData });
       }
     }
+
 
     const { code, data, msg } = rspData || {};
     if(code == 1002 || code ==1001){

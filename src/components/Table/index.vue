@@ -41,7 +41,7 @@
       </template>
     <template #empty>
       <!-- <div style="height: 24px"></div> -->
-      <img style="height: 80px;" alt="" class="table-empty" src="@/assets/nodata.png" />
+      <img style="height: 120px;" alt="" class="table-empty" src="@/assets/nodata.png" />
     </template>
   </el-table>
 </template>

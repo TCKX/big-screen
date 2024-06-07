@@ -4,7 +4,7 @@
 // RouteRecordRaw：意为路由原始信息 （使用vue3+js的不用引入）
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import { getUrlParams, isNull } from "../utils";
-import {currentUserMenu, isLogin, userAuthSet} from "@/utils/security";
+import { currentUserMenu, isLogin, userAuthSet } from "@/utils/security";
 import { ElMessage } from "element-plus";
 
 export const reidrect = (href: string) => {
@@ -64,16 +64,16 @@ const routes: Array<RouteRecordRaw> = [
       },
     ],
   },
-  // { path: "/#/home", redirect: "/home" },
+  { path: "/#/home", redirect: "/home" },
   {
     // 输入非法路径重定向到首页
     path: "/",
-    redirect: ()=>{
-      const getId = sessionStorage.getItem('token');
-      if(getId){
-        return "/home"
-      }else{
-        return "/login"
+    redirect: () => {
+      const getId = sessionStorage.getItem("token");
+      if (getId) {
+        return "/home";
+      } else {
+        return "/login";
       }
     },
   },
@@ -85,17 +85,24 @@ const router = createRouter({
   routes,
 });
 
-const goLogin = (errorMsg: string = '请先登录!') => {
+const goLogin = (errorMsg: string = "请先登录!") => {
   ElMessage.error(errorMsg);
   setTimeout(() => {
-    reidrect('/login')
+    reidrect("/login");
   }, 300);
-}
+};
 
-router.beforeEach(async (to, from, next) => {
-  //验证通过放行
-  next();
-  return;
+
+router.beforeEach((to, from, next) => {
+  if(sessionStorage.getItem("uname")){
+    next();  // 继续路由导航
+  } else {
+    if(to.path === '/login'){
+      next();  // 正在前往登录页面，不进行重定向
+    } else {
+      next('/login');  // 重定向至登录页面
+    }
+  }
 });
 
 export default router;

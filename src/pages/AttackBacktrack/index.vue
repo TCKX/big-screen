@@ -3,53 +3,96 @@
     <div class="nodeinfo">
       <div class="left-title">终端列表</div>
       <div class="new-tree-style">
-        <el-tree :data="data" :props="defaultProps" @node-click="getIPSnap" default-expand-all :expand-on-click-node="false" >
-          <template #default="{ node, data }">
-            <span :class="[ data.id == nodeId ? 'tree-node-item node-active' : 'tree-node-item', ]" >
-              <div style="position: relative">
-                <el-popover
-                placement="top-end"
-                :width="60"
-                trigger="hover"
-                :content="data.ip"
-                >
-                <template #reference>
-                    <span :title="data.ip" class="node-text">{{ node.label }}</span>
-                  </template>
-                </el-popover>
-              </div>
-            </span>
-          </template>
-        </el-tree>
+        <div v-for="m in nodeList">
+          <div
+            :class="
+              nodeId && m.id == nodeId ? 'node-item node-select' : 'node-item'
+            "
+            @click="getIPSnap(m)"
+          >
+            <div>{{ m.name }}</div>
+            <div>{{ "(" + m.ip + ")" }}</div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="treeinfo">
       <div class="condtion">
-        <span class="titleStyle">历史回溯快照: </span>
-        <el-select
-          v-model="snapSelect"
-          :disabled="snapDisabled"
-          placeholder="请选择历史回溯快照"
-          @change="getNodeBack"
-          style="width: 240px"
-        >
-          <el-option v-for="item in snapData" :key="item._id" :label="item['@timestamp']" :value="item._id" > </el-option>
-        </el-select>
-        <span class="titleStyle">请选择视角: </span>
-        <el-select
-          v-model="modelValue"
-          :disabled="modelDisabled"
-          placeholder="请选择"
-          @change="changeModel"
-        >
-          <el-option
-            v-for="item in modelList"
-            :key="item.id"
-            :label="item.text"
-            :value="item.id"
+        <div>
+          <span class="titleStyle">请选择视角: </span>
+          <el-select
+            v-model="modelValue"
+            :disabled="modelDisabled"
+            placeholder="请选择"
+            @change="changeModel"
           >
-          </el-option>
-        </el-select>
+            <el-option
+              v-for="item in modelList"
+              :key="item.id"
+              :label="item.text"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+        </div>
+        <div v-show="!showTimeLine">
+          <span class="titleStyle">历史回溯快照: </span>
+          <el-select
+            v-model="snapSelect"
+            :disabled="snapDisabled"
+            placeholder="请选择历史回溯快照"
+            @change="getNodeBack"
+            style="width: 240px"
+          >
+            <el-option
+              v-for="item in snapData"
+              :key="item._id"
+              :label="item['@timestamp']"
+              :value="item._id"
+            >
+            </el-option>
+          </el-select>
+        </div>
+        <div
+          v-show="showTimeLine == true"
+          style="display: flex; align-items: center"
+        >
+          <span class="titleStyle">时间范围: </span>
+          <el-date-picker
+            @change="changeTimeRangeFun"
+            v-model="timeRangeValue"
+            type="datetimerange"
+            value-format="YYYY-MM-DD HH:mm:ss"
+            range-separator="~"
+            start-placeholder="开始时间"
+            end-placeholder="结束时间"
+          />
+        </div>
+        <div v-show="showTimeLine == true">
+          <span class="titleStyle">分数: </span>
+          <el-select v-model="process" @change="changeLevelFun">
+            <el-option label="小于30" value="1"></el-option>
+            <el-option label="30 - 60" value="2"></el-option>
+            <el-option label="大于60" value="3"></el-option>
+          </el-select>
+        </div>
+        <!--
+        <div v-show="showTimeLine == true">
+          <el-button type="primary" @click="timelineSearchFun" style="margin-left: 20px;">查询</el-button>
+          <el-button @click="timelineResetFun" style="margin-left: 20px;">重置</el-button>
+        </div>
+        -->
+        <!-- <div v-show="showTimeLine == true">
+          <span class="titleStyle">进程: </span>
+          <el-select v-model="process">
+            <el-tree
+              style="max-width: 600px"
+              :data="nodeTreedata"
+              :props="nodeTreeDefaultProps"
+              @node-click="handleNodeClick"
+            />
+          </el-select>
+        </div> -->
         <el-button
           v-show="modelValue == 3 && data.length > 0"
           type="primary"
@@ -59,15 +102,21 @@
         >
         <el-button v-show="showBack" @click="back">返回</el-button>
       </div>
-      <div id="particles"></div>
-      <div id="tree"></div>
+      <div v-show="showTimeLine == true">
+        <TimeLineVisual ref="timeLineRef" />
+      </div>
+      <!-- <div id="particles" v-show="showTimeLine == false"></div> -->
+      <div
+        id="tree"
+        :style="`z-index:${showTimeLine == false ? '100' : '-100'}`"
+      ></div>
     </div>
     <el-dialog
       id="descDialog"
       class="zhuxiao"
       :title="title"
       width="40%"
-      style="height:44vh"
+      style="height: 44vh"
       v-model="dialogFormVisible"
       @close="diaclose"
       :close-on-click-modal="false"
@@ -83,7 +132,12 @@
           label="序号"
           width="80px"
         ></el-table-column>
-        <el-table-column prop="name" width="380%" label="规则名称" show-overflow-tooltip>
+        <el-table-column
+          prop="name"
+          width="380%"
+          label="规则名称"
+          show-overflow-tooltip
+        >
         </el-table-column>
         <el-table-column prop="alert_score" label="风险分数"></el-table-column>
         <el-table-column prop="alarm_level" label="告警等级">
@@ -153,7 +207,11 @@
           show-overflow-tooltip
         ></el-table-column>
 
-        <el-table-column width="150%" prop="behavior_analyse_result" label="行为分析结果">
+        <el-table-column
+          width="150%"
+          prop="behavior_analyse_result"
+          label="行为分析结果"
+        >
           <template v-slot="props">
             <span v-if="props.row.behavior_analyse_result == 0">正常</span>
             <span v-if="props.row.behavior_analyse_result == 1">异常</span>
@@ -189,7 +247,9 @@
       </el-pagination>
     </el-dialog>
     <div id="record" @mouseleave="hideRecord">
-      <div v-for="item in curTechAttcks" @click="handleItem(item)"> {{ item.record_time }} </div>
+      <div v-for="item in curTechAttcks" @click="handleItem(item)">
+        {{ item.record_time }}
+      </div>
     </div>
   </div>
 </template>
@@ -199,17 +259,31 @@ import { onBeforeUnmount, onMounted, reactive, toRefs } from "vue";
 import attackMatrixData from "../../utils/titleData";
 import * as d3 from "d3";
 import attckBackApi from "@/api/attckBacktrack/index";
+import TimeLineVisual from "./components/TimeLineVisual.vue";
+import moment from "moment";
 import "./index.scss";
 
 export default {
   name: "AttackBacktrack",
+  components: { TimeLineVisual },
   setup() {
     const defaultProps = {
       label: "label",
       id: "id",
       status: "status",
     };
+
+    interface Tree {
+      label: string;
+      children?: Tree[];
+    }
+
     const state = reactive({
+      nodeList:[],
+      timeLineRef: null,
+      showTimeLine: false, //是否展示时间线视角
+      timeRange: "", //时间线视角的时间范围
+      process: "3", //时间线视角的进程
       attackMatrixData,
       defaultProps,
       num: 0,
@@ -322,6 +396,7 @@ export default {
       modelList: [
         { id: 3, text: "ATT&CK框架视角" },
         { id: 1, text: "进程树视角" },
+        { id: 4, text: "时间线视角" },
         // {id:2,text:'客体关系视角'},
       ],
       dialogFormVisible: false,
@@ -366,8 +441,18 @@ export default {
       radius: 16,
       img_h: 100,
       img_w: 280,
+      nodeTreeDefaultProps: {
+        children: "children",
+        label: "label",
+      },
+      nodeTreedata: [],
+      timeRangeValue: ["", ""],
     });
     const funMethods = {
+      handleNodeClick(data: Tree) {
+        console.log("这是拿到的树数据", data);
+      },
+
       handleSizeChange(val: any) {
         state.pageSize = val;
         state.currentPage = 1;
@@ -404,14 +489,14 @@ export default {
         state.graphData.nodes = [];
         state.graphData.links = [];
         state.modelValue = 3;
-        state.nodeId = data.id;
+        state.nodeId = data ? data.id : "";
         state.snapSelect = "";
         const payload = {
           id: state.nodeId,
           page: 1,
           size: 1000,
         };
-
+        funMethods.resetBtn();
         const response = await attckBackApi.getProcessInfo(payload);
         state.snapData = response.list;
         if (state.snapData.length > 0) {
@@ -448,21 +533,65 @@ export default {
 
         funMethods.initTable("openLook");
       },
-      changeModel() {
+      changeModel(val: any) {
+        state.modelValue = val;
         funMethods.resetBtn();
         if (state.modelValue == 1) {
           funMethods.modelData();
           funMethods.refresh();
           funMethods.initGraph();
+          state.showTimeLine = false;
         } else if (state.modelValue == 2) {
           funMethods.modelData2();
           funMethods.refresh();
           funMethods.initGraph();
+          state.showTimeLine = false;
         } else if (state.modelValue == 3) {
           funMethods.modelData3();
           funMethods.refresh();
           funMethods.initTable();
+          state.showTimeLine = false;
+        } else if (state.modelValue == 4) {
+          state.showTimeLine = true;
+          funMethods.refresh();
+          funMethods.getLegendFun();
+          funMethods.getTimeLineFun();
         }
+      },
+
+      // 获取时间线的数据
+      async getTimeLineFun() {
+        // debugger;
+        const params = {
+          hostId: state.nodeId,
+          scoreLv: state.process,
+          startTime: state.timeRangeValue[0],
+          endTime: state.timeRangeValue[1],
+        };
+        const res = await attckBackApi.getTimeLineData(params);
+        state.timeLineRef.showData(state.timeRangeValue, state.nodeId);
+        state.timeLineRef.initCharts(res);
+        // state.timeLineRef.showData(res)
+      },
+      // 获取时间线的图例
+      async getLegendFun() {
+        const res = await attckBackApi.getLegendData({});
+        state.timeLineRef.show(res);
+      },
+      changeLevelFun() {
+        funMethods.getTimeLineFun();
+      },
+      changeTimeRangeFun(val) {
+        state.timeRangeValue = val;
+        funMethods.getTimeLineFun();
+      },
+      timelineResetFun() {
+        state.process = "3";
+        funMethods.getNowDate();
+        funMethods.getTimeLineFun();
+      },
+      timelineSearchFun() {
+        funMethods.getTimeLineFun();
       },
       async getNodeBack() {
         funMethods.resetBtn();
@@ -499,19 +628,27 @@ export default {
         };
         const response = await attckBackApi.getHostIpInfo(form);
 
-        state.nodes = response.list;
-        state.nodes.forEach((node) => {
-          state.data.push({
-            id: node.hostInfo.id,
-            label: node.hostInfo.name,
-            status: node.hostInfo.state,
-            ip: node.hostInfo.ip[0]
-          });
+        state.nodeList = response.list.map((m: any) => {
+          return {
+            name: m.hostInfo.name,
+            id: m.hostInfo.id,
+            state: m.hostInfo.state,
+            ip: m.hostInfo.ip[0],
+          };
         });
-        state.nodeId = state.data[0].id
+        // state.nodes = response.list;
+        // state.nodes.forEach((node) => {
+        //   state.data.push({
+        //     id: node.hostInfo.id,
+        //     label: node.hostInfo.name,
+        //     status: node.hostInfo.state,
+        //     ip: node.hostInfo.ip[0],
+        //   });
+        // });
+        state.nodeId = state.nodeList.length > 0 ? state.nodeList[0].id : "";
         // console.log(state.nodeId,state.data[0].id);
-        
-        const newList = response.list.map((m:any) => {
+
+        const newList = response.list.map((m: any) => {
           return {
             id: m.hostInfo.id,
             name: m.hostInfo.name,
@@ -523,8 +660,13 @@ export default {
       },
       initGraph() {
         let treeContainer = document.getElementById("tree");
+        // var width =  treeContainer.clientWidth == 0 ?2259 :treeContainer.clientWidth;
+        // var height = treeContainer.clientHeight == 0 ? 1205:treeContainer.clientHeight;
         var width = treeContainer.clientWidth;
         var height = treeContainer.clientHeight;
+
+        // console.log(width,height);
+
         var svg = d3
           .select("#tree")
           .append("svg")
@@ -550,7 +692,7 @@ export default {
         svg.call(zoom);
         var root = state.graphData;
         if (root.nodes.length == 0 && root.links.length == 0) {
-          (document.getElementById("particles") as any).style.zIndex = 100;
+          // (document.getElementById("particles") as any).style.zIndex = 100;
           var nodata = require("../../assets/attackbacktrack/nodata1.png");
           svg
             .append("image")
@@ -562,7 +704,7 @@ export default {
             .attr("xlink:href", nodata);
           return;
         }
-        (document.getElementById("particles") as any).style.zIndex = -100;
+        // (document.getElementById("particles") as any).style.zIndex = -100;
         var marginY = 50;
         var marginX = 50;
         var lineMinLenth = 120;
@@ -868,7 +1010,7 @@ export default {
           .append("tspan")
           .attr("dx", 100)
           .attr("dy", 40)
-          .text(function (d:any) {
+          .text(function (d: any) {
             return d.name + "：" + d.pid;
           });
 
@@ -1195,7 +1337,7 @@ export default {
       },
       descClick(e: any, node: any) {
         console.log(3453465346);
-        
+
         e.stopPropagation();
         state.dialogFormVisible = true;
         var descData = node.log;
@@ -1640,10 +1782,15 @@ export default {
 
       // 初始化图表
       initTable(openLook?: any) {
-        (document.getElementById("particles") as any).style.zIndex = -100;
+        // (document.getElementById("particles") as any).style.zIndex = -100;
         let treeContainer = document.getElementById("tree");
+        // var width =  treeContainer.clientWidth == 0 ?2259 :treeContainer.clientWidth;
+        // var height = treeContainer.clientHeight == 0 ? 1205:treeContainer.clientHeight;
         var width = treeContainer.clientWidth;
         var height = treeContainer.clientHeight;
+
+        // console.log('图表',width,height);
+
         var svg = d3
           .select("#tree")
           .append("svg")
@@ -1827,11 +1974,11 @@ export default {
             .attr("width", rectWidth)
             .append("xhtml:body")
             .append("div")
-            .attr("class", (d)=>{
-              if(d.attcks){
-                return "table_attacks_text"
-              }else {
-                return "table_text"
+            .attr("class", (d) => {
+              if (d.attcks) {
+                return "table_attacks_text";
+              } else {
+                return "table_text";
               }
             })
             .text((d) => d.desc)
@@ -1862,11 +2009,11 @@ export default {
             .attr("width", rectWidth)
             .append("xhtml:body")
             .append("div")
-            .attr("class", (d)=>{
-              if(d.attcks){
-                return "table_attacks_text"
-              }else {
-                return "table_text"
+            .attr("class", (d) => {
+              if (d.attcks) {
+                return "table_attacks_text";
+              } else {
+                return "table_text";
               }
             })
             // .attr("style","border-radius:10px")
@@ -1901,7 +2048,7 @@ export default {
             .node()
             .getBoundingClientRect();
           d.height = rect.height;
-          d3.select(this).attr("height", rect.height +25);
+          d3.select(this).attr("height", rect.height + 25);
         });
 
         var temp = funMethods.backDataGroup();
@@ -1987,7 +2134,7 @@ export default {
               } else {
                 return 900 * 1;
               }
-            })  
+            })
             .duration(500)
             .style("fill", function (d, i) {
               if (d.attcks) {
@@ -1995,19 +2142,19 @@ export default {
               } else {
                 return "#050c26";
               }
-            })
-            // .style("background", function (){
-            //   return "red"
-            // })
+            });
+          // .style("background", function (){
+          //   return "red"
+          // })
         } else {
           dataRow
             .selectAll("rect")
-            .attr("height", (d:any)=>d.height)
+            .attr("height", (d: any) => d.height)
             .attr("y", function (d) {
               var y = initY + dataToHeaderTop + rectHeight;
-              temp[d.tactics].forEach((dd:any) => {
+              temp[d.tactics].forEach((dd: any) => {
                 if (dd.index < d.index) {
-                  y = y + dd.height +8;
+                  y = y + dd.height + 8;
                 }
               });
               d.y = y;
@@ -2019,7 +2166,7 @@ export default {
               } else {
                 return "#050c26";
               }
-            })
+            });
         }
 
         dataRow.selectAll("foreignObject").attr("y", function (d) {
@@ -2183,16 +2330,37 @@ export default {
         d3.select("#tree").select("#graph").remove();
         d3.select("#tree").select("#table").attr("display", "");
       },
+      getNowDate() {
+        const now = new Date();
+        const firstTime = moment(now).format("YYYY-MM-DD HH:mm:ss");
+        const lastTime = moment(firstTime)
+          .subtract(5, "minute")
+          .format("YYYY-MM-DD HH:mm:ss");
+        state.timeRangeValue = [lastTime, firstTime];
+      },
     };
 
     onMounted(() => {
       window.addEventListener("keydown", funMethods.handleKey);
+      funMethods.getNowDate();
       // particlesJS("particles",this.cavasOptions)
       funMethods.node2Tree();
+      state.nodeTreedata = [
+        {
+          label: "Level one 1",
+          children: [
+            {
+              label: "Level two 1-1",
+              children: [{ label: "Level three 1-1-1" }],
+            },
+          ],
+        },
+      ];
+      state.nodeTreedata = [...state.nodeTreedata];
     });
-    onBeforeUnmount(()=>{
+    onBeforeUnmount(() => {
       funMethods.resetBtn();
-    })
+    });
     return {
       ...toRefs(state),
       ...funMethods,
@@ -2200,4 +2368,30 @@ export default {
   },
 };
 </script>
+<style>
+.node-item {
+  color: #fff;
+  padding-left: 30px;
+  height: 40px;
+  line-height: 40px;
+  background-color: #031838;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding-right: 10px;
+}
+.node-item:hover {
+  color: #118cfe;
+  cursor: pointer;
+  background-color: #2c4672;
+}
 
+.node-select {
+  color: #118cfe;
+  background-color: #2c4672;
+  border-radius: 4px;
+}
+:deep(.el-scrollbar) {
+  background-color: #fff !important;
+}
+</style>

@@ -365,4 +365,8 @@ export default {
     }
   }
 }
+
+:deep(.el-scrollbar){
+    background-color: #021438;
+}
 </style>

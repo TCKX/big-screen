@@ -26,6 +26,7 @@ module.exports = {
       return definitions
     })
   },
+  
   // chainWebpack: (config) => {
   //   const oneOfsMap = config.module.rule('scss').oneOfs.store
   //   oneOfsMap.forEach((item) => {
@@ -39,14 +40,15 @@ module.exports = {
   //   })
   // },
   configureWebpack: (config) => {
-    const plugins = [
-      // new webpack.DefinePlugin({
-      //   __VUE_OPTIONS_API__: 'true',
-      //   __VUE_PROD_DEVTOOLS__: 'false',
-      //   __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false'
-      // })
-    ]
+    // const plugins = [
+    //   // new webpack.DefinePlugin({
+    //   //   __VUE_OPTIONS_API__: 'true',
+    //   //   __VUE_PROD_DEVTOOLS__: 'false',
+    //   //   __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false'
+    //   // })
+    // ],
     // plugins.push(new NodePolyfillPlugin())
+    // devtool:"source-map",
   },
   //开发环境代理    
   devServer: {
@@ -82,5 +84,5 @@ module.exports = {
         secure:false,
       },
     },
-  },  
+  }, 
 };

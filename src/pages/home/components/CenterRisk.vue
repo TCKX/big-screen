@@ -11,8 +11,8 @@
       </div>
     </div>
     <div class="center">
-      <img :src="require('@/assets/bigScreen/centerRisk/alarm.png')" />
-    </div>
+      <img :src="require('@/assets/bigScreen/centerRisk/warn.png')" />
+    </div>  
     <div class="bottom">
       <!-- <div v-for="m in items" :key="m.value"> -->
       <div class="item-img-bottom z1 anii1">

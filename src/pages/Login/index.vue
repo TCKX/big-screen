@@ -13,7 +13,7 @@
       :rules="rules"
       ref="formRef"
       hide-required-asterisk
-      style="margin-left: -134px;display: flex;flex-direction: column;"
+      style="margin-left: -134px;display: flex;flex-direction: column;margin-top: 40px;"
     >
       <el-form-item prop="account">
         <el-input v-model="form.account" placeholder="请输入用户名" clearable />
@@ -190,8 +190,8 @@ export default {
   
 
   .header {
-    position: fixed;
-    top: 160px;
+    // position: fixed;
+    margin-top: -260px;
     display: flex;
     flex-direction: column;
     align-items: center;

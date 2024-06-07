@@ -147,3 +147,37 @@ header.el-dialog__header {
 .el-popper.is-light{
   border: 1px solid #024b93;
 }
+
+.el-picker-panel__footer{
+  // background-color: ;
+}
+
+.el-date-editor.el-input__wrapper{
+  box-shadow: none;
+}
+
+.el-picker-panel__footer{
+  background-color: #012e5a;
+  border-top: 1px solid #024b93;
+}
+.el-date-table th{
+  border-bottom: 1px solid #024b93;
+}
+
+.el-date-table td.in-range .el-date-table-cell,.el-date-table td.in-range .el-date-table-cell:hover{
+  background-color: #024b93;
+}
+
+.el-date-range-picker .el-picker-panel__body{
+  background-color: #012e5a;
+  color: #fff;
+  border-bottom: 1px solid #024b93;
+}
+
+.el-date-range-picker__time-header{
+  border-bottom: 1px solid #024b93;
+}
+
+.el-date-range-picker__content.is-left{
+  border-right: 1px solid #024b93;
+}
